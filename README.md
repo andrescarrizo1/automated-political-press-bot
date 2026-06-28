@@ -1,49 +1,60 @@
-# 🏛️ Bot Automatizado de Prensa Política (n8n + IA)
+# 🏛️ Automated Political Press Engine (AI-Driven PR)
 
-> **Pipeline de Generación de Contenido y Relaciones Públicas impulsado por IA (SaaS B2G Listo para Producción)**
+[▶️ Ver Video Demo de la Arquitectura (Próximamente)]
 
-Este repositorio contiene el archivo `workflow.json` de una **automatización en n8n** altamente especializada, diseñada como un **Motor de Prensa y Relaciones Públicas** para instituciones gubernamentales, campañas políticas y municipalidades. 
+![n8n](https://img.shields.io/badge/n8n-FF6D5W?style=for-the-badge&logo=n8n&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+![Telegram API](https://img.shields.io/badge/Telegram_API-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)
+![Google Sheets](https://img.shields.io/badge/Google_Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)
+![Blogger API](https://img.shields.io/badge/Blogger_API-FF5722?style=for-the-badge&logo=blogger&logoColor=white)
 
-Actúa como un secretario de prensa autónomo: monitorea fuentes de noticias en tiempo real, redacta artículos estratégicamente alineados usando Modelos de Lenguaje Grande (LLMs) y los envía a través de un proceso de aprobación con validación humana antes de su publicación final.
+Un pipeline de automatización end-to-end diseñado para el monitoreo, curaduría y generación de comunicados de prensa en el sector gubernamental y político. 
 
----
-
-## 🚀 Visión de Negocio y Potencial SaaS
-
-Esta arquitectura fue diseñada pensando en un modelo de negocio **B2B / B2G (Business-to-Government) Software as a Service (SaaS)**. 
-
-Es un sistema completamente **Multi-Tenant (Multi-inquilino) y Agnóstico**, lo que significa que puede adaptarse instantáneamente a cualquier partido político (oficialismo u oposición) o municipio con tan solo ajustar las variables de contexto de la Inteligencia Artificial. 
-
-### 💰 Monetización / Modelo de Suscripción por Niveles (Tiers)
-El motor está estructurado para soportar diferentes niveles comerciales (tiers) según las necesidades del cliente:
-- **Nivel Básico (Basic Tier):** Publicación automatizada en blog + 1 resumen diario + 1 fuente de noticias.
-- **Nivel Profesional (Pro Tier):** Múltiples fuentes RSS + Aprobaciones en tiempo real por Telegram + Publicación en múltiples redes (Blogger, Facebook).
-- **Nivel Enterprise / Campaña:** Prompts granulares para manejo de crisis + Distribución Omnicanal (Twitter/X, Instagram, LinkedIn) + Publicaciones diarias ilimitadas.
+A diferencia de un bot de redacción tradicional, este sistema actúa como un **Secretario de Prensa Autónomo**. Combina extracción de datos en tiempo real (ETL), procesamiento avanzado con Modelos de Lenguaje Grande (LLMs) fuertemente condicionados por contexto político, y un sistema de validación estricta para garantizar la seguridad de la imagen institucional (Brand Safety).
 
 ---
 
-## ⚙️ Arquitectura Técnica y Características
+## 🏗️ Arquitectura y Flujo de Datos
 
-1. **Ingesta Multi-Fuente (ETL):** 
-   - Extrae (hace scraping) múltiples feeds RSS (Google News, diarios locales, sitios oficiales del municipio) en un horario personalizable (ej. cada 20 minutos).
-   - Incluye una lógica robusta de deduplicación para evitar procesar la misma noticia dos veces.
+El sistema está orquestado visualmente a través de n8n, dividiendo la lógica en nodos especializados que actúan como micro-servicios interconectados:
 
-2. **Ingeniería de Prompts Avanzada y Seguridad de Marca (Brand Safety):**
-   - Utiliza LLMs avanzados (como Gemini 2.5 Flash) con prompts de sistema (System Prompts) desarrollados a medida.
-   - Aplica **Reglas Editoriales Estrictas**: Las instrucciones están programadas (hardcoded) para especificar a quién defender, a quién criticar, qué conflictos locales amplificar y qué escándalos evitar, garantizando la seguridad de la imagen política.
-   
-3. **Gestión de Estados y Base de Datos:**
-   - Utiliza Google Sheets como una base de datos intermedia de baja fricción y fácil acceso.
-   - Rastrea el estado de cada artículo generado (`PENDING`, `APROBADO`, `DESCARTADO`, `ERROR`).
+1. **Ingesta Multi-Fuente (ETL):** Disparadores asíncronos consultan feeds RSS (Google News, medios locales, webs oficiales) en intervalos programados. El sistema aplica algoritmos de deduplicación para evitar el procesamiento redundante de noticias ya cubiertas.
+2. **Procesamiento de Lenguaje Natural (Context-Aware LLM):** Los datos crudos ingresan a Google Gemini 2.5 Flash. Mediante una profunda *Ingeniería de Prompts*, la IA procesa la información aplicando un marco estricto de reglas editoriales locales (reconocimiento de aliados, estrategias frente a la oposición, temas sensibles).
+3. **Gestión de Estados (State Machine):** El resultado se almacena temporalmente en Google Sheets (actuando como base de datos transaccional de baja latencia). Cada artículo nace con un estado inicial de `PENDING` (Borrador).
+4. **Validación Human-in-the-Loop (HITL):** Para mitigar el riesgo de alucinaciones de la IA o crisis diplomáticas, el orquestador notifica a un administrador vía Telegram. Mediante Callbacks (botones interactivos en el chat), el humano aprueba (`APROBADO`) o rechaza (`DESCARTADO`) el contenido propuesto.
+5. **Distribución Omnicanal:** Tras recibir la autorización criptográfica del webhook de Telegram, el flujo actualiza el estado en la base de datos y dispara peticiones HTTP POST hacia las APIs de destino (actualmente Blogger, preparado para escalar a Meta Graph API y X/Twitter).
 
-4. **Validación Humana (Human-in-the-Loop - HITL):**
-   - Para garantizar la seguridad en entornos políticos altamente sensibles, la IA **no publica de forma autónoma**.
-   - Los borradores son enviados a un administrador a través de un Bot de Telegram con botones interactivos (`✅ Publicar` / `❌ Descartar`).
-   - Esto asegura que un humano tenga la última palabra antes de que el contenido se haga público.
+---
 
-5. **Publicación Omnicanal Automatizada:**
-   - Tras la aprobación, el sistema actualiza la base de datos y dispara peticiones HTTP POST hacia las plataformas de contenido (actualmente integrado con la API de Google Blogger).
-   - Su diseño modular permite una fácil expansión hacia otras APIs como la Meta Graph API (Facebook/Instagram) o Twitter/X.
+## 🛡️ Brand Safety y Control de Riesgos Políticos
 
-## 🛠️ Cómo usarlo
-Importa el archivo `workflow.json` directamente en una instancia activa de n8n. Las credenciales de Google Sheets, la API del Bot de Telegram y la API de Blogger deben configurarse dentro del entorno de n8n para activar el pipeline.
+En un entorno gubernamental, un error de comunicación puede desencadenar una crisis institucional. Para asegurar la estabilidad en producción, implementamos capas de seguridad semántica:
+
+### Ingeniería de Prompts Basada en Roles (RBAC Semántico)
+El modelo no solo resume texto; opera bajo un conjunto de `[REGLAS_EDITORIALES_ABSOLUTAS]` inyectadas dinámicamente en el System Prompt. Esto obliga a la IA a comprender el ecosistema político local (ej. a quién defender frente a acusaciones, qué temas de infraestructura amplificar y qué conflictos sindicales neutralizar en la redacción).
+
+### Manejo de Excepciones JSON (Graceful Degradation)
+Los LLMs ocasionalmente fallan al estructurar las respuestas. El flujo cuenta con un nodo de ejecución en JavaScript (Limpieza JSON) que captura excepciones de parseo, utiliza expresiones regulares para remover "artefactos" (como backticks de markdown residuales) y recupera la estructura de datos sin romper el pipeline.
+
+```javascript
+// Ejemplo de recuperación de fallos en la estructura del LLM
+try {
+    parsed = JSON.parse(jsonString);
+} catch (e) {
+    const objectMatch = jsonString.match(/\{[\s\S]*\}/);
+    if (!objectMatch) throw new Error("No JSON found in response");
+    // Lógica de recuperación y limpieza con RegEx...
+}
+```
+
+---
+
+## 🧠 Justificación Técnica: Orquestación Visual con n8n
+
+> **¿Por qué utilizar n8n para este caso de uso específico?**  
+> Mientras que los pipelines de procesamiento masivo de datos se benefician de lenguajes puros como Python, los entornos de relaciones públicas requieren **agilidad táctica**. 
+
+Utilizar una arquitectura basada en n8n nos otorgó tres ventajas críticas a nivel de ingeniería:
+1. **Iteración Rápida de Prompts:** Permite a los analistas de comunicación ajustar el contexto del LLM y las reglas editoriales en caliente, sin necesidad de redesplegar el código fuente.
+2. **Webhooks Nativos para HITL:** La integración bidireccional inmediata con los Webhooks de Telegram acelera el desarrollo del sistema de aprobación (Human-in-the-Loop) sin gestionar sockets o servidores web intermedios.
+3. **Escalabilidad Agnóstica:** El diseño modular (Multi-Tenant) permite clonar el pipeline y adaptarlo a un municipio, campaña o candidato distinto en cuestión de minutos, cambiando únicamente las credenciales de salida y el contexto del prompt.
