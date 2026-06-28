@@ -1,49 +1,49 @@
-# 🏛️ Automated Political Press Bot (n8n + AI)
+# 🏛️ Bot Automatizado de Prensa Política (n8n + IA)
 
-> **AI-Driven PR & Content Generation Pipeline (B2G SaaS Ready)**
+> **Pipeline de Generación de Contenido y Relaciones Públicas impulsado por IA (SaaS B2G Listo para Producción)**
 
-This repository contains the `workflow.json` of a highly specialized **n8n automation** designed as a **Press and Public Relations Engine** for government institutions, political campaigns, and municipalities. 
+Este repositorio contiene el archivo `workflow.json` de una **automatización en n8n** altamente especializada, diseñada como un **Motor de Prensa y Relaciones Públicas** para instituciones gubernamentales, campañas políticas y municipalidades. 
 
-It acts as an autonomous press secretary: monitoring news sources in real-time, drafting strategically aligned articles using LLMs, and routing them through a human-in-the-loop approval process before final publication.
-
----
-
-## 🚀 Business Vision & SaaS Potential
-
-This architecture was designed with a **B2B / B2G (Business-to-Government) Software as a Service (SaaS)** model in mind. 
-
-It is completely **Multi-Tenant and Agnostic**, meaning it can be instantly adapted to any political party (officialism or opposition) or municipality by simply tweaking the LLM's context variables. 
-
-### 💰 Monetization / Tiered Subscription Model
-The engine is structured to support different commercial tiers based on client needs:
-- **Basic Tier:** Automated blogging + 1 daily digest + 1 news source.
-- **Professional Tier:** Multiple RSS feeds + Real-time Telegram approvals + Multi-network posting (Blogger, Facebook).
-- **Enterprise / Campaign Tier:** Granular crisis-management prompts + Omni-channel distribution (Twitter/X, Instagram, LinkedIn) + Unlimited daily publications.
+Actúa como un secretario de prensa autónomo: monitorea fuentes de noticias en tiempo real, redacta artículos estratégicamente alineados usando Modelos de Lenguaje Grande (LLMs) y los envía a través de un proceso de aprobación con validación humana antes de su publicación final.
 
 ---
 
-## ⚙️ Technical Architecture & Features
+## 🚀 Visión de Negocio y Potencial SaaS
 
-1. **Multi-Source Ingestion (ETL):** 
-   - Scrapes multiple RSS feeds (Google News, local newspapers, official municipality sites) on a customizable schedule (e.g., every 20 minutes).
-   - Includes robust deduplication logic to prevent redundant processing.
+Esta arquitectura fue diseñada pensando en un modelo de negocio **B2B / B2G (Business-to-Government) Software as a Service (SaaS)**. 
 
-2. **Advanced Prompt Engineering & Brand Safety:**
-   - Utilizes advanced LLMs (e.g., Gemini 2.5 Flash) with heavily engineered system prompts.
-   - Enforces **Strict Editorial Rules**: Instructions are hardcoded to specify who to defend, who to critique, which local conflicts to amplify, and which scandals to avoid (Brand Safety).
+Es un sistema completamente **Multi-Tenant (Multi-inquilino) y Agnóstico**, lo que significa que puede adaptarse instantáneamente a cualquier partido político (oficialismo u oposición) o municipio con tan solo ajustar las variables de contexto de la Inteligencia Artificial. 
+
+### 💰 Monetización / Modelo de Suscripción por Niveles (Tiers)
+El motor está estructurado para soportar diferentes niveles comerciales (tiers) según las necesidades del cliente:
+- **Nivel Básico (Basic Tier):** Publicación automatizada en blog + 1 resumen diario + 1 fuente de noticias.
+- **Nivel Profesional (Pro Tier):** Múltiples fuentes RSS + Aprobaciones en tiempo real por Telegram + Publicación en múltiples redes (Blogger, Facebook).
+- **Nivel Enterprise / Campaña:** Prompts granulares para manejo de crisis + Distribución Omnicanal (Twitter/X, Instagram, LinkedIn) + Publicaciones diarias ilimitadas.
+
+---
+
+## ⚙️ Arquitectura Técnica y Características
+
+1. **Ingesta Multi-Fuente (ETL):** 
+   - Extrae (hace scraping) múltiples feeds RSS (Google News, diarios locales, sitios oficiales del municipio) en un horario personalizable (ej. cada 20 minutos).
+   - Incluye una lógica robusta de deduplicación para evitar procesar la misma noticia dos veces.
+
+2. **Ingeniería de Prompts Avanzada y Seguridad de Marca (Brand Safety):**
+   - Utiliza LLMs avanzados (como Gemini 2.5 Flash) con prompts de sistema (System Prompts) desarrollados a medida.
+   - Aplica **Reglas Editoriales Estrictas**: Las instrucciones están programadas (hardcoded) para especificar a quién defender, a quién criticar, qué conflictos locales amplificar y qué escándalos evitar, garantizando la seguridad de la imagen política.
    
-3. **State Management & Database:**
-   - Uses Google Sheets as a low-friction, easily accessible intermediate database.
-   - Tracks the state of every generated article (`PENDING`, `APROBADO`, `DESCARTADO`, `ERROR`).
+3. **Gestión de Estados y Base de Datos:**
+   - Utiliza Google Sheets como una base de datos intermedia de baja fricción y fácil acceso.
+   - Rastrea el estado de cada artículo generado (`PENDING`, `APROBADO`, `DESCARTADO`, `ERROR`).
 
-4. **Human-in-the-Loop (HITL) Validation:**
-   - To guarantee safety in highly sensitive political environments, the AI **does not publish autonomously**.
-   - Drafts are sent to an administrator via a Telegram Bot featuring interactive Inline Keyboard buttons (`✅ Publicar` / `❌ Descartar`).
-   - Ensures humans have the final say before any content goes public.
+4. **Validación Humana (Human-in-the-Loop - HITL):**
+   - Para garantizar la seguridad en entornos políticos altamente sensibles, la IA **no publica de forma autónoma**.
+   - Los borradores son enviados a un administrador a través de un Bot de Telegram con botones interactivos (`✅ Publicar` / `❌ Descartar`).
+   - Esto asegura que un humano tenga la última palabra antes de que el contenido se haga público.
 
-5. **Automated Omni-Channel Publishing:**
-   - Upon approval, the system updates the database and triggers HTTP POST requests to content platforms (currently integrated with Google Blogger API).
-   - The modular design allows easy extension to other APIs like Meta Graph API (Facebook/Instagram) or Twitter/X.
+5. **Publicación Omnicanal Automatizada:**
+   - Tras la aprobación, el sistema actualiza la base de datos y dispara peticiones HTTP POST hacia las plataformas de contenido (actualmente integrado con la API de Google Blogger).
+   - Su diseño modular permite una fácil expansión hacia otras APIs como la Meta Graph API (Facebook/Instagram) o Twitter/X.
 
-## 🛠️ How to use
-Import the `workflow.json` file directly into an active n8n instance. Credentials for Google Sheets, Telegram Bot API, and Blogger API must be configured within the n8n environment to activate the pipeline.
+## 🛠️ Cómo usarlo
+Importa el archivo `workflow.json` directamente en una instancia activa de n8n. Las credenciales de Google Sheets, la API del Bot de Telegram y la API de Blogger deben configurarse dentro del entorno de n8n para activar el pipeline.
