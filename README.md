@@ -1,6 +1,5 @@
 # 🏛️ Automated Political Press Engine (AI-Driven PR)
 
-[▶️ Ver Video Demo de la Arquitectura (Próximamente)]
 
 ![n8n](https://img.shields.io/badge/n8n-FF6D5W?style=for-the-badge&logo=n8n&logoColor=white)
 ![Google Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)
