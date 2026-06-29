@@ -1,0 +1,95 @@
+==================================================
+PROMPT PARA COMET/PERPLEXITY — RESEARCH POLÍTICO
+Uso: copiar todo esto, reemplazar [MUNICIPIO] y [PROVINCIA]
+     y pegarlo en Comet. Tarda 2-3 minutos por municipio.
+==================================================
+
+Necesito un análisis político completo y actualizado del 
+municipio de [MUNICIPIO], provincia de [PROVINCIA], Argentina.
+
+Responde SOLO con datos verificables y actuales. 
+Si no encontrás información sobre algún punto, escribí 
+"SIN DATOS" en lugar de inventar.
+
+Necesito exactamente esto:
+
+1. AUTORIDADES ACTUALES
+   - Nombre completo del intendente/jefe comunal actual
+   - Partido político y coalición
+   - Año que asumió y si es reelecto
+   - ¿Es oficialismo o oposición respecto al gobernador?
+   - ¿Es oficialismo o oposición respecto al presidente nacional?
+   - Nombres de los principales concejales del oficialismo
+
+2. OPOSICIÓN LOCAL
+   - Principal partido opositor en el municipio
+   - Referente más visible de la oposición
+   - ¿La oposición local está alineada con el gobierno provincial?
+   - ¿Tiene presencia La Libertad Avanza en el municipio?
+
+3. RELACIONES EXTERNAS
+   - ¿Cómo es la relación del intendente con el gobernador?
+     (aliado / neutral / conflicto — explicar brevemente)
+   - ¿Cómo es la relación del intendente con el presidente Milei?
+   - ¿Hay diputados o senadores nacionales aliados al intendente?
+
+4. CONFLICTOS POLÍTICOS ACTIVOS
+   Para cada conflicto: nombre, descripción, desde cuándo, estado actual
+   - Conflictos con el gobierno provincial
+   - Conflictos con el gobierno nacional
+   - Conflictos gremiales o sindicales locales
+   - Conflictos internos del partido gobernante
+
+5. ECONOMÍA Y TEMAS SENSIBLES
+   - Principal actividad económica del municipio
+   - Principal empleador (público o privado)
+   - Obras de infraestructura en curso o prometidas
+   - ¿Qué temas generan más reacción en la comunidad local?
+     (ej: seguridad, empleo, servicios públicos, medio ambiente)
+
+6. HISTORIA POLÍTICA RECIENTE
+   - Resultado de las últimas 2 elecciones municipales
+   - ¿Es un bastión de algún partido o es disputado?
+   - ¿Hubo escándalos políticos relevantes en los últimos 2 años?
+
+7. FIGURAS INFLUYENTES
+   - Dirigentes sindicales con poder local
+   - Empresarios o sectores económicos con influencia política
+   - Periodistas o medios locales con postura política definida
+   - Figuras que apoyan al intendente (aliados clave)
+   - Figuras que se oponen al intendente (opositores visibles)
+
+8. PRÓXIMOS EVENTOS POLÍTICOS
+   - ¿Hay elecciones municipales próximas?
+   - ¿Hay obras o inauguraciones importantes planificadas?
+   - ¿Hay festividades o eventos locales relevantes?
+
+Formato de respuesta: texto estructurado con los 8 puntos numerados.
+Sé concreto y específico. Prioriza información de 2024-2025.
+
+==================================================
+FIN DEL PROMPT
+==================================================
+
+INSTRUCCIONES DE USO (agregar al final del archivo):
+
+PASO 1: Abrí Comet o Perplexity
+PASO 2: Pegá el prompt de arriba reemplazando [MUNICIPIO] y [PROVINCIA]
+PASO 3: Cuando Comet responda, copiá la respuesta
+PASO 4: Abrí una nueva conversación con Claude o Gemini y pegá:
+
+"Tengo este research político de [MUNICIPIO]:
+[PEGAR RESPUESTA DE COMET]
+
+Ahora convertilo al formato del archivo contexto_politico.txt
+usando exactamente esta estructura:
+[PEGAR CONTENIDO DE _template/contexto_politico.txt]"
+
+PASO 5: Copiá el output y pedile a Antigravity:
+"Crea el archivo 
+C:\Users\Ryzen 5\Desktop\liberty-press-framework\
+  clientes\[MUNICIPIO]\contexto_politico.txt
+con este contenido: [PEGAR OUTPUT]"
+
+TIEMPO TOTAL POR MUNICIPIO NUEVO: 5-10 minutos
+COSTO: $0

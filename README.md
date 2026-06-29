@@ -57,3 +57,24 @@ Utilizar una arquitectura basada en n8n nos otorgó tres ventajas críticas a ni
 1. **Iteración Rápida de Prompts:** Permite a los analistas de comunicación ajustar el contexto del LLM y las reglas editoriales en caliente, sin necesidad de redesplegar el código fuente.
 2. **Webhooks Nativos para HITL:** La integración bidireccional inmediata con los Webhooks de Telegram acelera el desarrollo del sistema de aprobación (Human-in-the-Loop) sin gestionar sockets o servidores web intermedios.
 3. **Escalabilidad Agnóstica:** El diseño modular (Multi-Tenant) permite clonar el pipeline y adaptarlo a un municipio, campaña o candidato distinto en cuestión de minutos, cambiando únicamente las credenciales de salida y el contexto del prompt.
+
+---
+
+## 🚀 The Liberty Press Framework (SaaS / Multi-Tenant Architecture)
+
+Para escalar la solución de un orquestador individual a un producto comercial, el repositorio implementa el **Liberty Press Framework**. Esta estructura de directorios demuestra capacidad para pensar en despliegues a nivel empresarial (B2B/B2G) y arquitecturas multi-cliente.
+
+```text
+liberty-press-framework/
+├── _template/          # Boilerplate y base estructural para instanciar nuevos clientes
+├── clientes/           # Entornos aislados por entidad (Ej: malargue_oficial, malargue_oposicion)
+│   ├── config.json     # Variables de entorno y endpoints (Blogger, Telegram) por tenant
+│   └── fuentes/        # Feeds RSS y orígenes de datos hiper-locales
+├── docs/               # Documentación de onboarding, despliegue de n8n y propuestas
+└── MASTER_PROMPT       # El core lógico (Brand Safety & Contexto Político) inyectado al LLM
+```
+
+### Por qué esto es relevante a nivel Ingeniería:
+- **Separación de Intereses (SoC):** La lógica de orquestación (flujos de n8n) está completamente desacoplada de la configuración del cliente (fuentes, endpoints) y la lógica de negocio (Prompts).
+- **Despliegue Replicable (Onboarding Ágil):** El directorio `_template` permite inicializar un nuevo "Secretario de Prensa" en minutos, reduciendo el Time-to-Market para nuevos clientes gubernamentales.
+- **Aislamiento de Contexto:** Cada tenant en `clientes/` mantiene sus propias directrices políticas, garantizando que el LLM no mezcle directivas entre diferentes municipalidades o perfiles políticos.

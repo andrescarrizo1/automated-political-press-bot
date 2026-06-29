@@ -1,0 +1,13 @@
+# FUENTES RSS - MALARGÜE
+# Verificadas y activas al 07/05/2025
+
+[RSS_LOCALES]
+https://www.malargueadiario.com/feed/ | Malargüe a Diario | prioridad:1 | sesgo:critico
+https://malalweb.com.ar/feed/ | Malalweb | prioridad:1 | sesgo:neutro
+https://www.malargue.gov.ar/feed/ | Municipalidad de Malargüe | prioridad:2 | sesgo:oficialismo
+
+[RSS_PROVINCIALES]
+# Agregar feeds de MDZ Online, Los Andes, Diario UNO
+
+[GOOGLE_NEWS_QUERY]
+Malargüe Mendoza

@@ -1,0 +1,65 @@
+# CONTEXTO POLÍTICO — [MUNICIPIO]
+# Actualizar cada 3-6 meses o ante cambio político importante
+# Este archivo es leído por Gemini antes de procesar noticias
+# Última actualización: [FECHA]
+
+[AUTORIDADES_ACTUALES]
+intendente_nombre=
+intendente_partido=
+intendente_desde=
+intendente_estado=oficialismo|oposicion_provincial|oposicion_nacional
+vicejefe_nombre=
+concejales_oficialismo=
+secretario_gobierno=
+secretario_obras=
+secretario_prensa=
+
+[OPOSICION_LOCAL]
+partido_principal_opositor=
+referente_oposicion=
+concejales_oposicion=
+tono_oposicion=agresivo|moderado|testimonial
+
+[RELACIONES_EXTERNAS]
+relacion_gobernador=aliado|neutral|conflicto
+nombre_gobernador=
+relacion_presidente=aliado|neutral|conflicto
+nombre_presidente=
+diputados_nacionales_aliados=
+senadores_aliados=
+
+[CONFLICTOS_ACTIVOS]
+# Formato: NOMBRE_CONFLICTO | descripcion breve | desde cuándo | estado
+# Ejemplo: PORTEZUELO | disputa por construcción de obra hídrica | 2020 | activo
+
+[TEMAS_SENSIBLES]
+# Temas que explotan en redes en este municipio
+# Formato: tema | por qué es sensible | postura del cliente
+
+[ECONOMIA_LOCAL]
+actividad_principal=
+empleador_principal=
+obras_en_curso=
+proyectos_emblema=
+
+[HISTORIAL_POLITICO]
+resultado_eleccion_2023=
+resultado_eleccion_2019=
+tendencia=peronista_historico|radical|disputado|nuevo_partido
+municipio_tipo=bastión|competitivo|cambiante
+
+[FIGURAS_CLAVE]
+# Formato: nombre | rol | relación_con_cliente(aliado|neutro|enemigo) | observaciones
+# Incluir: dirigentes sindicales, empresarios influyentes, periodistas locales
+
+[PROXIMOS_EVENTOS_POLITICOS]
+proximas_elecciones=
+obras_por_inaugurar=
+fechas_importantes=
+
+[REGLAS_EDITORIALES_ABSOLUTAS]
+NUNCA_PUBLICAR=
+SIEMPRE_AMPLIFICAR=
+ENCUADRE_ESPECIAL=
+# Ejemplo ENCUADRE_ESPECIAL: 
+# conflictos_gremiales → enmarcar como "diálogo en curso", nunca como "enfrentamiento"

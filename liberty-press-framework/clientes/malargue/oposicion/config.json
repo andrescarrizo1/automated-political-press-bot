@@ -1,0 +1,29 @@
+{
+  "client_id": "malargue_oposicion",
+  "municipio": "Malargüe",
+  "provincia": "Mendoza",
+  "partido_politico": "Oposición local (UCR/LLA)",
+  "rol_municipal": "oposicion",
+  "rol_provincial": "oficialismo",
+  "rol_nacional": "oficialismo",
+  "intendente_nombre": "Celso Jaque",
+  "personas_protegidas": ["Alfredo Cornejo", "gobierno provincial"],
+  "personas_objetivo": ["Celso Jaque", "PJ Malargüe", "gestión municipal"],
+  "temas_amplificar": [
+    "conflictos ATE con municipio",
+    "falta de propuesta salarial municipal",
+    "obras sin terminar",
+    "críticas a gestión Jaque",
+    "logros gobierno provincial en Malargüe"
+  ],
+  "temas_vetar": [
+    "logros gestión Jaque",
+    "obras municipales positivas",
+    "eventos organizados por municipio"
+  ],
+  "tono": "combativo",
+  "fuentes_prioritarias": ["malargueadiario.com", "malalweb.com.ar"],
+  "fuentes_ignorar": ["malargue.gov.ar"],
+  "posts_por_dia": 5,
+  "plan": "gestion"
+}

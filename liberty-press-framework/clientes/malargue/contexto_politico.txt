@@ -1,0 +1,79 @@
+# CONTEXTO POLÍTICO — MALARGÜE
+# Provincia: Mendoza, Argentina
+# Última actualización: Mayo 2025
+
+[AUTORIDADES_ACTUALES]
+intendente_nombre=Celso Jaque
+intendente_partido=Partido Justicialista (Peronismo)
+intendente_desde=2019 (reelecto 2023)
+intendente_estado=oposicion_provincial y oposicion_nacional
+concejales_oficialismo=Bloque PJ Malargüe (mayoría)
+nota=Celso Jaque fue gobernador de Mendoza 2007-2011, 
+     figura histórica del peronismo mendocino
+
+[OPOSICION_LOCAL]
+partido_principal_opositor=UCR Malargüe / Cambia Mendoza
+referente_oposicion=concejales radicales locales
+partido_secundario=La Libertad Avanza (incipiente presencia local)
+tono_oposicion=moderado
+
+[RELACIONES_EXTERNAS]
+relacion_gobernador=CONFLICTO ACTIVO
+nombre_gobernador=Alfredo Cornejo (UCR)
+motivo_conflicto_gobernador=Portezuelo del Viento, distribución de regalías petroleras
+relacion_presidente=OPOSICION
+nombre_presidente=Javier Milei (La Libertad Avanza)
+motivo_oposicion_nacional=ajuste fiscal, recorte a provincias, modelo económico
+diputados_nacionales_aliados=bloque PJ Mendoza
+
+[CONFLICTOS_ACTIVOS]
+PORTEZUELO_DEL_VIENTO | Obra hídrica en disputa entre Mendoza y La Pampa. 
+Jaque critica a Cornejo por no avanzar con la construcción. 
+Tema central para Malargüe por impacto económico y energético | 2020 | activo y vigente
+
+ATE_MUNICIPIO | Sindicato ATE denuncia falta de propuesta salarial del municipio. 
+Tensión laboral con empleados municipales | 2025 | activo
+
+[TEMAS_SENSIBLES]
+mineria_petroleo | Malargüe depende económicamente del petróleo y la minería. 
+Cualquier noticia sobre regalías, inversiones o cierre de empresas 
+tiene alto impacto político y social
+turismo_ski | Las Leñas es el centro de ski más importante de Sudamérica. 
+Temporada invernal es económicamente crítica para el municipio
+paleontologia | El Parque Cretácico es orgullo local. 
+Noticias de descubrimientos o inversiones son siempre positivas
+clima_zonda | El viento Zonda y nevadas en rutas afectan al turismo y a la vida diaria. 
+Siempre es noticia de alta relevancia local
+
+[ECONOMIA_LOCAL]
+actividad_principal=Petróleo y gas (YPF, empresas privadas), turismo de nieve (Las Leñas)
+empleador_principal=Municipalidad, YPF, empresas mineras, sector turístico
+obras_emblema=Red de gas barrio 60 Aniversario, señalización vial La Junta
+proyectos=Postulación Bardas Blancas y Las Loicas a reconocimiento ONU Turismo
+
+[HISTORIAL_POLITICO]
+tendencia=peronista_historico
+municipio_tipo=bastión peronista con alternancia esporádica
+nota=Malargüe es históricamente uno de los distritos más fieles 
+     al peronismo en Mendoza
+
+[FIGURAS_CLAVE]
+Celso Jaque | Intendente | PROTEGER | Figura histórica, no atacar bajo ningún concepto
+Alfredo Cornejo | Gobernador UCR | OBJETIVO | Criticar cuando haya sustento factual
+Javier Milei | Presidente LLA | OBJETIVO | Criticar impacto de políticas nacionales en Malargüe
+dirigentes ATE local | Sindicato | NEUTRO | No amplificar sus críticas al municipio
+
+[PROXIMOS_EVENTOS_POLITICOS]
+proximas_elecciones=2025 (legislativas nacionales)
+temporada_turistica=invierno 2025 (junio-septiembre), crítica para Las Leñas
+fiesta_veranador=Bardas Blancas, evento cultural importante anual
+
+[REGLAS_EDITORIALES_ABSOLUTAS]
+NUNCA_PUBLICAR=críticas a Celso Jaque, escándalos del PJ local, 
+               conflictos ATE vs municipio como falla de gestión
+SIEMPRE_AMPLIFICAR=obras municipales, turismo, paleontología, 
+                   críticas al gobierno provincial por Portezuelo,
+                   desarrollo económico local
+ENCUADRE_ESPECIAL=conflictos_ATE → "el municipio trabaja en una propuesta salarial superadora"
+                  criticas_cornejo → amplificar con datos del Portezuelo del Viento
+                  noticias_nacionales_mala → enmarcar como consecuencia del ajuste nacional

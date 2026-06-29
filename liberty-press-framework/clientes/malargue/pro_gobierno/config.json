@@ -1,0 +1,32 @@
+{
+  "client_id": "malargue_pro",
+  "municipio": "Malargüe",
+  "provincia": "Mendoza",
+  "poblacion": 30000,
+  "partido_politico": "Peronismo - PJ",
+  "rol_municipal": "oficialismo",
+  "rol_provincial": "oposicion",
+  "rol_nacional": "oposicion",
+  "intendente_nombre": "Celso Jaque",
+  "personas_protegidas": ["Celso Jaque", "municipalidad de Malargüe", "peronismo local"],
+  "personas_objetivo": ["Alfredo Cornejo", "gobierno provincial", "Milei"],
+  "temas_amplificar": [
+    "obras públicas municipales",
+    "turismo Malargüe",
+    "paleontología",
+    "cultura local",
+    "Portezuelo del Viento a favor municipio",
+    "gestión Jaque",
+    "desarrollo local"
+  ],
+  "temas_vetar": [
+    "escándalos peronismo local",
+    "críticas al intendente",
+    "conflictos gremiales municipales"
+  ],
+  "tono": "institucional",
+  "fuentes_prioritarias": ["malargue.gov.ar", "malalweb.com.ar"],
+  "fuentes_ignorar": [],
+  "posts_por_dia": 5,
+  "plan": "gestion"
+}
