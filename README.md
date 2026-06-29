@@ -1,4 +1,4 @@
-# 🏛️ Automated Political Press Engine (AI-Driven PR)
+# 🏛️ Motor Automatizado de Prensa Política (RRPP con IA)
 
 
 ![n8n](https://img.shields.io/badge/n8n-FF6D5W?style=for-the-badge&logo=n8n&logoColor=white)
@@ -60,7 +60,7 @@ Utilizar una arquitectura basada en n8n nos otorgó tres ventajas críticas a ni
 
 ---
 
-## 🚀 The Liberty Press Framework (SaaS / Multi-Tenant Architecture)
+## 🚀 Framework Liberty Press (Arquitectura SaaS / Multi-Cliente)
 
 Para escalar la solución de un orquestador individual a un producto comercial, el repositorio implementa el **Liberty Press Framework**. Esta estructura de directorios demuestra capacidad para pensar en despliegues a nivel empresarial (B2B/B2G) y arquitecturas multi-cliente.
 
