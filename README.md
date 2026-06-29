@@ -43,21 +43,18 @@ Si los LLMs (usualmente Gemini vía LangChain/API directa) alucinan o entregan f
 
 ---
 
-## 🚀 Framework Liberty Press (Arquitectura SaaS / Multi-Cliente)
+## 🚀 Liberty Press Framework: Características Técnicas
 
-Para escalar la solución de un orquestador individual a un producto comercial, el repositorio implementa el **Liberty Press Framework**. Esta estructura de directorios demuestra capacidad para pensar en despliegues a nivel empresarial (B2B/B2G) y arquitecturas multi-cliente.
+El núcleo del sistema fue diseñado pensando en la escalabilidad y en resolver problemas reales de publicación automatizada:
 
-```text
-liberty-press-framework/
-├── _template/          # Boilerplate y base estructural para instanciar nuevos clientes
-├── clientes/           # Entornos aislados por entidad (Ej: malargue_oficial, malargue_oposicion)
-│   ├── config.json     # Variables de entorno y endpoints (Blogger, Telegram) por tenant
-│   └── fuentes/        # Feeds RSS y orígenes de datos hiper-locales
-├── docs/               # Documentación de onboarding, despliegue de n8n y propuestas
-└── MASTER_PROMPT       # El core lógico (Brand Safety & Contexto Político) inyectado al LLM
-```
+### 1. Optimizaciones SEO Automatizadas (Blogger API)
+En lugar de simplemente hacer POST del contenido, la integración con Blogger (en `blogger_publisher.py`) inyecta dinámicamente etiquetas (labels) hiper-locales y utiliza el campo `customMetaData` para asegurar que cada artículo generado tenga una **Meta Descripción** optimizada para motores de búsqueda, aumentando la visibilidad orgánica.
 
-### Por qué esto es relevante a nivel Ingeniería:
-- **Separación de Intereses (SoC):** La lógica de orquestación (flujos de n8n) está completamente desacoplada de la configuración del cliente (fuentes, endpoints) y la lógica de negocio (Prompts).
-- **Despliegue Replicable (Onboarding Ágil):** El directorio `_template` permite inicializar un nuevo "Secretario de Prensa" en minutos, reduciendo el Time-to-Market para nuevos clientes gubernamentales.
-- **Aislamiento de Contexto:** Cada tenant en `clientes/` mantiene sus propias directrices políticas, garantizando que el LLM no mezcle directivas entre diferentes municipalidades o perfiles políticos.
+### 2. Prevención de Duplicados (Hashing & SQLite)
+Para evitar que el motor publique la misma noticia cubierta por diferentes medios, el ETL asíncrono genera un hash criptográfico del contenido (`content_hash`). Las colisiones se validan instantáneamente contra una base de datos local SQLite, garantizando que el bot solo procese información verdaderamente nueva.
+
+### 3. Arquitectura Multi-Tenant Segura
+El directorio `clientes/` permite manejar distintos municipios o candidatos desde la misma instancia. Los archivos `config.json` inyectan el tono, las directrices y las fuentes RSS específicas en tiempo de ejecución, manteniendo la lógica del código fuente 100% agnóstica al contexto político.
+
+### 4. Pipeline Asíncrono (Asyncio)
+Para manejar la alta latencia de las llamadas a LLMs y la publicación web, el flujo principal (`main.py`) delega la ingesta, el encolado de mensajes de Telegram y las peticiones a Blogger en `asyncio.Queue` y Executores, evitando cuellos de botella y bloqueos en el hilo principal.
