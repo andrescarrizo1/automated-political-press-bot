@@ -26,7 +26,9 @@ La arquitectura actual implementa un **Flujo Agéntico de 3 Etapas** utilizando 
    - **`QualityGate`:** Un agente evaluador estricto que veta la publicación si detecta desviaciones del manual de estilo o riesgos de *Brand Safety*.
 3. **Gestión de Estados (SQLite):** Se abandonó Google Sheets en favor de una base de datos transaccional SQLite local, garantizando integridad referencial y baja latencia. Cada artículo nace como `PENDING`.
 4. **Sistema de Aprobación (HITL con Telegram):** Un bot de Telegram integrado asíncronamente recibe los artículos aprobados por el *QualityGate*. El administrador humano tiene la decisión final mediante botones interactivos (Callbacks).
+   <p align="center"><img src="assets/telegram_bot.png" width="400" alt="Bot de Telegram solicitando aprobación"></p>
 5. **Distribución Omnicanal:** Al recibir el `APROBADO`, el sistema despacha el contenido automáticamente a través de la API de Blogger (con capacidad de escalado a otras redes).
+   <p align="center"><img src="assets/blogger_post.png" width="700" alt="Noticia publicada automáticamente en Blogger"></p>
 
 ---
 
