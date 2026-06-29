@@ -13,50 +13,33 @@ A diferencia de un bot de redacción tradicional, este sistema actúa como un **
 
 ---
 
-## 🏗️ Arquitectura y Flujo de Datos
+## 🏗️ Evolución de la Arquitectura: De n8n a Python Puro (Agentic Workflow)
 
-El sistema está orquestado visualmente a través de n8n, dividiendo la lógica en nodos especializados que actúan como micro-servicios interconectados:
+Originalmente prototipado en n8n para iteración rápida (Low-Code), el sistema migró a un **Backend en Python Puro** para superar las limitaciones de la orquestación visual y lograr un control absoluto sobre el flujo de ejecución, el asincronismo y la persistencia de datos.
 
-1. **Ingesta Multi-Fuente (ETL):** Disparadores asíncronos consultan feeds RSS (Google News, medios locales, webs oficiales) en intervalos programados. El sistema aplica algoritmos de deduplicación para evitar el procesamiento redundante de noticias ya cubiertas.
-2. **Procesamiento de Lenguaje Natural (Context-Aware LLM):** Los datos crudos ingresan a Google Gemini 2.5 Flash. Mediante una profunda *Ingeniería de Prompts*, la IA procesa la información aplicando un marco estricto de reglas editoriales locales (reconocimiento de aliados, estrategias frente a la oposición, temas sensibles).
-3. **Gestión de Estados (State Machine):** El resultado se almacena temporalmente en Google Sheets (actuando como base de datos transaccional de baja latencia). Cada artículo nace con un estado inicial de `PENDING` (Borrador).
-4. **Validación Human-in-the-Loop (HITL):** Para mitigar el riesgo de alucinaciones de la IA o crisis diplomáticas, el orquestador notifica a un administrador vía Telegram. Mediante Callbacks (botones interactivos en el chat), el humano aprueba (`APROBADO`) o rechaza (`DESCARTADO`) el contenido propuesto.
-5. **Distribución Omnicanal:** Tras recibir la autorización criptográfica del webhook de Telegram, el flujo actualiza el estado en la base de datos y dispara peticiones HTTP POST hacia las APIs de destino (actualmente Blogger, preparado para escalar a Meta Graph API y X/Twitter).
+La arquitectura actual implementa un **Flujo Agéntico de 3 Etapas** utilizando procesamiento concurrente:
 
----
-
-## 🛡️ Brand Safety y Control de Riesgos Políticos
-
-En un entorno gubernamental, un error de comunicación puede desencadenar una crisis institucional. Para asegurar la estabilidad en producción, implementamos capas de seguridad semántica:
-
-### Ingeniería de Prompts Basada en Roles (RBAC Semántico)
-El modelo no solo resume texto; opera bajo un conjunto de `[REGLAS_EDITORIALES_ABSOLUTAS]` inyectadas dinámicamente en el System Prompt. Esto obliga a la IA a comprender el ecosistema político local (ej. a quién defender frente a acusaciones, qué temas de infraestructura amplificar y qué conflictos sindicales neutralizar en la redacción).
-
-### Manejo de Excepciones JSON (Graceful Degradation)
-Los LLMs ocasionalmente fallan al estructurar las respuestas. El flujo cuenta con un nodo de ejecución en JavaScript (Limpieza JSON) que captura excepciones de parseo, utiliza expresiones regulares para remover "artefactos" (como backticks de markdown residuales) y recupera la estructura de datos sin romper el pipeline.
-
-```javascript
-// Ejemplo de recuperación de fallos en la estructura del LLM
-try {
-    parsed = JSON.parse(jsonString);
-} catch (e) {
-    const objectMatch = jsonString.match(/\{[\s\S]*\}/);
-    if (!objectMatch) throw new Error("No JSON found in response");
-    // Lógica de recuperación y limpieza con RegEx...
-}
-```
+1. **Ingesta Asíncrona (ETL):** Un motor basado en `asyncio` que consume feeds RSS. Implementa algoritmos de deduplicación utilizando hashes criptográficos y una base de datos local SQLite para evitar procesar noticias repetidas.
+2. **Sistema Agéntico Multicapa:** En lugar de un solo prompt masivo, la información fluye por tres agentes especializados:
+   - **`PoliticalFramer`:** Analiza la noticia cruda y le aplica el "encuadre" político correcto según las directrices del cliente.
+   - **`ArticleWriter`:** Toma el contexto del Framer y redacta el comunicado con formato periodístico.
+   - **`QualityGate`:** Un agente evaluador estricto que veta la publicación si detecta desviaciones del manual de estilo o riesgos de *Brand Safety*.
+3. **Gestión de Estados (SQLite):** Se abandonó Google Sheets en favor de una base de datos transaccional SQLite local, garantizando integridad referencial y baja latencia. Cada artículo nace como `PENDING`.
+4. **Sistema de Aprobación (HITL con Telegram):** Un bot de Telegram integrado asíncronamente recibe los artículos aprobados por el *QualityGate*. El administrador humano tiene la decisión final mediante botones interactivos (Callbacks).
+5. **Distribución Omnicanal:** Al recibir el `APROBADO`, el sistema despacha el contenido automáticamente a través de la API de Blogger (con capacidad de escalado a otras redes).
 
 ---
 
-## 🧠 Justificación Técnica: Orquestación Visual con n8n
+## 🛡️ Brand Safety y Quality Gate
 
-> **¿Por qué utilizar n8n para este caso de uso específico?**  
-> Mientras que los pipelines de procesamiento masivo de datos se benefician de lenguajes puros como Python, los entornos de relaciones públicas requieren **agilidad táctica**. 
+En un entorno gubernamental, un error de comunicación desencadena crisis institucionales. Para asegurar la estabilidad en producción, el sistema cuenta con:
 
-Utilizar una arquitectura basada en n8n nos otorgó tres ventajas críticas a nivel de ingeniería:
-1. **Iteración Rápida de Prompts:** Permite a los analistas de comunicación ajustar el contexto del LLM y las reglas editoriales en caliente, sin necesidad de redesplegar el código fuente.
-2. **Webhooks Nativos para HITL:** La integración bidireccional inmediata con los Webhooks de Telegram acelera el desarrollo del sistema de aprobación (Human-in-the-Loop) sin gestionar sockets o servidores web intermedios.
-3. **Escalabilidad Agnóstica:** El diseño modular (Multi-Tenant) permite clonar el pipeline y adaptarlo a un municipio, campaña o candidato distinto en cuestión de minutos, cambiando únicamente las credenciales de salida y el contexto del prompt.
+### Ingeniería de Prompts Modular
+El ecosistema político local (ej. a quién defender, qué conflictos neutralizar) se inyecta dinámicamente en el `PoliticalFramer`. 
+
+### Tolerancia a Fallos y Verificación Cruzada
+Si los LLMs (usualmente Gemini vía LangChain/API directa) alucinan o entregan formatos incorrectos, el `QualityGate` actúa como cortafuegos. El sistema no hace *crash*; simplemente veta la noticia y la marca como bloqueada en la base de datos local, alertando sobre el motivo.
+
 
 ---
 

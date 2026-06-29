@@ -1,0 +1,1093 @@
+{
+  "name": "The Liberty Advance v9 - Blogger ES",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -720,
+        592
+      ],
+      "id": "15ad999d-0c7c-4a31-af9f-0e5413f7ffc7",
+      "name": "Cada 20 Min"
+    },
+    {
+      "parameters": {
+        "jsCode": "let newsList = \"\";\nlet count = 0;\n\n// Filtramos y agrupamos\nfor (const item of items) {\n  if (count < 8) {\n    newsList += `--- NOTICIA ${count + 1} ---\\n`;\n    newsList += `TITULO: ${item.json.title}\\n`;\n    newsList += `LINK: ${item.json.link}\\n`;\n    newsList += `FECHA: ${item.json.pubDate}\\n`;\n    newsList += `RESUMEN: ${item.json.contentSnippet || item.json.content}\\n\\n`;\n    count++;\n  }\n}\n\nreturn [{\n  json: {\n    news_summary: newsList\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        592
+      ],
+      "id": "3202ef7a-775b-452d-ba61-57ef976c51ea",
+      "name": "Agrupar Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawText = $input.first().json?.content?.parts?.[0]?.text || \"\";\nif (!rawText) throw new Error(\"Gemini devolvio texto vacio.\");\n\nlet jsonString = rawText.trim();\n\nconst fenceMatch = jsonString.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\nif (fenceMatch) jsonString = fenceMatch[1].trim();\n\nlet parsed;\ntry {\n    parsed = JSON.parse(jsonString);\n} catch (e) {\n    const objectMatch = jsonString.match(/\\{[\\s\\S]*\\}/);\n    if (!objectMatch) throw new Error(\"No JSON found in response\");\n    let candidate = objectMatch[0];\n    try {\n          parsed = JSON.parse(candidate);\n    } catch (e2) {\n          let fixed = candidate.replace(/(?<=:\\s*\\\")([\\s\\S]*?)(?=\\\"\\s*[,\\}])/g, (match) => {\n                  return match.replace(/\\n/g, \"\\\\n\").replace(/(?<!\\\\)\\\"/g, \"\\\\\\\"\");\n          });\n          try {\n                  parsed = JSON.parse(fixed);\n          } catch (e3) {\n                  throw new Error(\"Could not fix JSON: \" + e3.message);\n          }\n    }\n}\n\nfunction limpiarSlug(texto) {\n    if (!texto) return \"noticia-\" + Date.now();\n    return texto.toString().toLowerCase().normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").trim().replace(/\\s+/g, \"-\").replace(/[^\\w\\-]+/g, \"\").replace(/\\-\\-+/g, \"-\").substring(0, 40);\n}\n\nconst titulo = parsed.titulo || parsed.title_en || parsed.title || \"\";\nconst slug = limpiarSlug(parsed.slug || titulo);\nconst contenido_html = parsed.contenido_html || parsed.content_markdown_en || \"\";\nconst resumen_aprobacion = parsed.resumen_aprobacion || parsed.approval_summary_es || parsed.summary_es || \"\";\nconst categoria = parsed.categoria || \"politica\";\n\nreturn [{\n    json: {\n        titulo,\n        slug,\n        contenido_html,\n        resumen_aprobacion,\n        categoria\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        592
+      ],
+      "id": "623c075f-7b22-48dd-b223-e97de131d89b",
+      "name": "Limpiar JSON"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U",
+          "mode": "id",
+          "cachedResultName": "Noticias_Bot_DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "slug": "={{ $json.slug }}",
+            "titulo": "={{ $json.titulo }}",
+            "contenido_html": "={{ $json.contenido_html }}",
+            "resumen_aprobacion": "={{ $json.resumen_aprobacion }}",
+            "categoria": "={{ $json.categoria }}",
+            "status": "PENDING"
+          },
+          "matchingColumns": [
+            "slug"
+          ],
+          "schema": [
+            {
+              "id": "slug",
+              "displayName": "slug",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "titulo",
+              "displayName": "titulo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contenido_html",
+              "displayName": "contenido_html",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resumen_aprobacion",
+              "displayName": "resumen_aprobacion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "categoria",
+              "displayName": "categoria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        304,
+        592
+      ],
+      "id": "14b20859-b429-41dd-9e74-ca13ec414ba9",
+      "name": "Guardar Borrador",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wlHYpO5Knj4a6xCZ",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5378050103",
+        "text": "=🚨 *NUEVA NOTICIA — MALARGÜE*\n\n📰 {{ $json.titulo || 'Sin título' }}\n\n📝 {{ $json.resumen_aprobacion || '_(sin resumen)_' }}\n\n📂 Categoría: {{ $json.categoria || 'general' }}\n🔖 Slug: `{{ $json.slug }}`\n\n👇 *¿Publicamos en Blogger?*",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "âœ… Publicar",
+                    "additionalFields": {
+                      "callback_data": "=publish:{{ $json.slug }}"
+                    }
+                  },
+                  {
+                    "text": "âŒ Descartar",
+                    "additionalFields": {
+                      "callback_data": "discard"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        592
+      ],
+      "id": "ce2a050f-5942-4c23-8915-d34954b5bf7e",
+      "name": "Preguntar Telegram",
+      "webhookId": "799fc3bb-1e26-4698-9fb7-e6a07c189cef",
+      "credentials": {
+        "telegramApi": {
+          "id": "Gf3gnn25sb0Xe4fq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U",
+          "mode": "id",
+          "cachedResultName": "Noticias_Bot_DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "APROBADO"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -448,
+        864
+      ],
+      "id": "b3d6996e-6046-4ad3-81f8-860b8674573c",
+      "name": "Recuperar Texto",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wlHYpO5Knj4a6xCZ",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/blogger/v3/blogs/7462385476239656697/posts/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ title: $('Recuperar Texto').item.json.titulo, content: $('Recuperar Texto').item.json.contenido_html, labels: [$('Recuperar Texto').item.json.categoria, 'Malargüe', 'Mendoza'], status: 'LIVE' }) }}",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -64,
+        864
+      ],
+      "id": "f56c6f72-d0d9-457a-ac30-aa1db165565b",
+      "name": "Publicar en Blogger",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "Sm1S6gdE3gSyu4Co",
+          "name": "Unnamed credential"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "5378050103",
+        "text": "=✅ *Publicado en Blogger*\n\n📰 {{ $('Recuperar Texto').item.json.titulo }}\n🔗 {{ $json.url || $json.selfLink || 'Ver en Blogger' }}\n📂 {{ $('Recuperar Texto').item.json.categoria }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        720
+      ],
+      "id": "2d590b48-a7d9-4b80-b8a4-c746799d4220",
+      "name": "Aviso Final",
+      "webhookId": "2ce28b52-a547-40a2-a7ca-ccca6f95ee9e",
+      "credentials": {
+        "telegramApi": {
+          "id": "Gf3gnn25sb0Xe4fq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5378050103",
+        "text": "=❌ *Error al publicar en Blogger*\n\n📰 {{ $('Recuperar Texto').item.json.titulo || 'Sin título' }}\n\n⚠️ {{ $json.error?.message || $json.error || $json.message || 'Error desconocido' }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        192
+      ],
+      "id": "1478aad1-3495-47ea-934f-1910ad29f1f1",
+      "name": "Alerta Error GitHub",
+      "webhookId": "d747c3b5-c821-40b4-b410-6ecc26b2ed68",
+      "credentials": {
+        "telegramApi": {
+          "id": "Gf3gnn25sb0Xe4fq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answer"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        1184
+      ],
+      "id": "4ab20b5f-a772-4659-9529-ece53eca0166",
+      "name": "Answer Callback",
+      "webhookId": "95bc04b3-ccb9-482a-abb0-76af7dc80263",
+      "credentials": {
+        "telegramApi": {
+          "id": "Gf3gnn25sb0Xe4fq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.action }}",
+              "operation": "equals",
+              "value2": "publish"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        1184
+      ],
+      "id": "d37cef6b-a45f-4ca6-bf25-e60b115a504a",
+      "name": "Check Action"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst cb = input.callback_query || input;\nconst data = (cb.data || '').trim();\nconst cbId = cb.id || input.callback_query_id || '';\nlet action = 'unknown';\nlet slug = '';\nif (data.startsWith('publish:')) {\n  action = 'publish';\n  slug = data.slice('publish:'.length);\n} else if (data === 'discard') {\n  action = 'discard';\n}\nreturn [{ json: { action, slug, cbId, callback_data: data } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1216,
+        1184
+      ],
+      "id": "677cdf6d-1fc9-4d7a-9bf5-a69065bd8367",
+      "name": "Extract Action"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst publishedSlugs = $('Leer Slugs Publicados').all().map(item => item.json.slug);\nconst inputItems = $input.all();\nconst newItems = [];\nfor (let item of inputItems) {\n    // Generate a quick slug from title to check duplicates if possible\n    // Here we just pass it through or implement basic check\n    newItems.push(item);\n}\nreturn newItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        592
+      ],
+      "id": "d7005a95-122a-49be-bf65-7a545589bb49",
+      "name": "Filtrar Duplicados"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.error }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        96
+      ],
+      "id": "b65a665f-8592-4621-b725-2955468b8dc5",
+      "name": "GitHub Exito?"
+    },
+    {
+      "parameters": {
+        "operation": "getMany",
+        "documentId": {
+          "__rl": true,
+          "value": "16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -608,
+        496
+      ],
+      "id": "d5d4fdde-e65b-43cc-9255-279a6f10dd7b",
+      "name": "Leer Slugs Publicados",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wlHYpO5Knj4a6xCZ",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\nif (!rows.length) return [];\nreturn [rows[0]];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -912,
+        96
+      ],
+      "id": "a6b61962-1221-4f19-93eb-20ee56b3e258",
+      "name": "Limit to 1 row"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "id",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Sos el redactor de prensa del municipio de MalargÃ¼e, Mendoza, Argentina.\nTrabajÃ¡s para la gestiÃ³n del intendente Celso Jaque (Peronismo).\n\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\nCONTEXTO POLÃTICO COMPLETO DEL MUNICIPIO:\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n# CONTEXTO POLÃTICO â€” MALARGÃœE\n# Provincia: Mendoza, Argentina\n# Ãšltima actualizaciÃ³n: Mayo 2025\n\n[AUTORIDADES_ACTUALES]\nintendente_nombre=Celso Jaque\nintendente_partido=Partido Justicialista (Peronismo)\nintendente_desde=2019 (reelecto 2023)\nintendente_estado=oposicion_provincial y oposicion_nacional\nconcejales_oficialismo=Bloque PJ MalargÃ¼e (mayorÃa)\nnota=Celso Jaque fue gobernador de Mendoza 2007-2011, \n     figura histÃ³rica del peronismo mendocino\n\n[OPOSICION_LOCAL]\npartido_principal_opositor=UCR MalargÃ¼e / Cambia Mendoza\nreferente_oposicion=concejales radicales locales\npartido_secundario=La Libertad Avanza (incipiente presencia local)\ntono_oposicion=moderado\n\n[RELACIONES_EXTERNAS]\nrelacion_gobernador=CONFLICTO ACTIVO\nnombre_gobernador=Alfredo Cornejo (UCR)\nmotivo_conflicto_gobernador=Portezuelo del Viento, distribuciÃ³n de regalÃas petroleras\nrelacion_presidente=OPOSICION\nnombre_presidente=Javier Milei (La Libertad Avanza)\nmotivo_oposicion_nacional=ajuste fiscal, recorte a provincias, modelo econÃ³mico\ndiputados_nacionales_aliados=bloque PJ Mendoza\n\n[CONFLICTOS_ACTIVOS]\nPORTEZUELO_DEL_VIENTO | Obra hÃdrica en disputa entre Mendoza y La Pampa. \nJaque critica a Cornejo por no avanzar con la construcciÃ³n. \nTema central para MalargÃ¼e por impacto econÃ³mico y energÃ©tico | 2020 | activo y vigente\n\nATE_MUNICIPIO | Sindicato ATE denuncia falta de propuesta salarial del municipio. \nTensiÃ³n laboral con empleados municipales | 2025 | activo\n\n[TEMAS_SENSIBLES]\nmineria_petroleo | MalargÃ¼e depende econÃ³micamente del petrÃ³leo y la minerÃa. \nCualquier noticia sobre regalÃas, inversiones o cierre de empresas \ntiene alto impacto polÃtico y social\nturismo_ski | Las LeÃ±as es el centro de ski mÃ¡s importante de SudamÃ©rica. \nTemporada invernal es econÃ³micamente crÃtica para el municipio\npaleontologia | El Parque CretÃ¡cico es orgullo local. \nNoticias de descubrimientos o inversiones son siempre positivas\nclima_zonda | El viento Zonda y nevadas en rutas afectan al turismo y a la vida diaria. \nSiempre es noticia de alta relevancia local\n\n[ECONOMIA_LOCAL]\nactividad_principal=PetrÃ³leo y gas (YPF, empresas privadas), turismo de nieve (Las LeÃ±as)\nempleador_principal=Municipalidad, YPF, empresas mineras, sector turÃstico\nobras_emblema=Red de gas barrio 60 Aniversario, seÃ±alizaciÃ³n vial La Junta\nproyectos=PostulaciÃ³n Bardas Blancas y Las Loicas a reconocimiento ONU Turismo\n\n[HISTORIAL_POLITICO]\ntendencia=peronista_historico\nmunicipio_tipo=bastiÃ³n peronista con alternancia esporÃ¡dica\nnota=MalargÃ¼e es histÃ³ricamente uno de los distritos mÃ¡s fieles \n     al peronismo en Mendoza\n\n[FIGURAS_CLAVE]\nCelso Jaque | Intendente | PROTEGER | Figura histÃ³rica, no atacar bajo ningÃºn concepto\nAlfredo Cornejo | Gobernador UCR | OBJETIVO | Criticar cuando haya sustento factual\nJavier Milei | Presidente LLA | OBJETIVO | Criticar impacto de polÃticas nacionales en MalargÃ¼e\ndirigentes ATE local | Sindicato | NEUTRO | No amplificar sus crÃticas al municipio\nSilvina Camiolo | Concejal opositora Partido Verde | ENEMIGO | Nunca citar positivamente.\nEmir FÃ©lix | Exintendente PJ | ALIADO | Citar positivamente si aparece.\n\n[PROXIMOS_EVENTOS_POLITICOS]\nproximas_elecciones=2025 (legislativas nacionales)\ntemporada_turistica=invierno 2025 (junio-septiembre), crÃtica para Las LeÃ±as\nfiesta_veranador=Bardas Blancas, evento cultural importante anual\n\n[REGLAS_EDITORIALES_ABSOLUTAS]\nNUNCA_PUBLICAR=crÃticas a Celso Jaque, escÃ¡ndalos del PJ local, conflictos ATE vs municipio como falla de gestiÃ³n, escandalo_nepotismo_jaque, conflicto_uocra, resultados_legislativas_2025\n               conflictos ATE vs municipio como falla de gestiÃ³n\nSIEMPRE_AMPLIFICAR=obras municipales, turismo, paleontologÃa, crÃticas al gobierno provincial por Portezuelo, desarrollo econÃ³mico local, festival_pasturas_2026, postulacion_onu_turismo, kobrea_exploration\n                   crÃticas al gobierno provincial por Portezuelo,\n                   desarrollo econÃ³mico local\nENCUADRE_ESPECIAL=conflictos_ATE â†’ \"el municipio trabaja en una propuesta salarial superadora\"\n                  criticas_cornejo â†’ amplificar con datos del Portezuelo del Viento\n                  noticias_nacionales_mala â†’ enmarcar como consecuencia del ajuste nacional\n\n\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\nINTELIGENCIA POLÃTICA ADICIONAL (research actualizado):\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n# ANÃLISIS POLÃTICO COMPLETO â€” MALARGÃœE, MENDOZA\n\n***\n\n## 1. AUTORIDADES ACTUALES\n\n**Intendente:** Celso Alejandro Jaque [es.wikipedia](https://es.wikipedia.org/wiki/Celso_Jaque)\n**Partido / CoaliciÃ³n:** Partido Justicialista (PJ) / Frente ElegÃ [memo.com](https://www.memo.com.ar/poder/jaque-gano-malargue-elecciones-2023/)\n**AsumiÃ³:** Diciembre 2023 (reelecto â€” ya habÃa sido intendente antes de ser gobernador provincial 2007-2011) [es.wikipedia](https://es.wikipedia.org/wiki/Celso_Jaque)\n**Â¿Es reelecto?** SÃ. VolviÃ³ al cargo tras aÃ±os de ausencia, ganando por amplia diferencia [memo.com](https://www.memo.com.ar/poder/jaque-gano-malargue-elecciones-2023/)\n**RelaciÃ³n con el gobernador (Cornejo):** OPOSICIÃ“N â€” Jaque es peronista; Cornejo es radical de Cambia Mendoza [losandes.com](https://www.losandes.com.ar/politica/portezuelo-del-viento-la-furia-de-jaque-y-la-propuesta-de-mansur-por-el-anuncio-de-cornejo)\n**RelaciÃ³n con el presidente nacional (Milei):** OPOSICIÃ“N â€” Jaque calificÃ³ el contexto como \"desafiante y de abandono\" y criticÃ³ directamente a Milei por el abandono de la Ruta Nacional 40 [eleditormendoza.com](https://eleditormendoza.com.ar/politica/celso-jaque-dio-un-discurso-malargue-y-pidio-eliminar-las-elecciones-medio-termino-n5386936)\n\n**Concejales del oficialismo (PJ) actuales en el HCD:**\n- MagalÃ Acosta (PJ) [legislaturasconectadas.gob](https://www.legislaturasconectadas.gob.ar/Legislatura/161/Honorable-Concejo-Deliberante-de-Malarguee)\n- Emilce Mansilla (PJ) [hcd.malargue.gov](https://hcd.malargue.gov.ar)\n- David GuzmÃ¡n (PJ) [eleditormendoza.com](https://eleditormendoza.com.ar/politica/asumieron-los-nuevos-concejales-malargue-mandato-2030-n5389665)\n- Pablo Cabrera (PJ) â€” presidente del HCD [sitioandino.com](https://www.sitioandino.com.ar/departamentales/se-puso-marcha-una-nueva-etapa-legislativa-malargue-n5721902)\n- Elizabeth GonzÃ¡lez (PJ) [legislaturasconectadas.gob](https://www.legislaturasconectadas.gob.ar/Legislatura/161/Honorable-Concejo-Deliberante-de-Malarguee)\n\n***\n\n## 2. OPOSICIÃ“N LOCAL\n\n**Principal fuerza opositora:** Cambia Mendoza + La Libertad Avanza (frente conjunto) [resultados.mendoza.gov](https://resultados.mendoza.gov.ar/eleccion251026publico/w+hstconsgendptob-17_7_1_4_7_0_0.html)\nâ†’ En las legislativas de octubre 2025 obtuvieron el **42% de los votos** en MalargÃ¼e [resultados.mendoza.gov](https://resultados.mendoza.gov.ar/eleccion251026publico/w+hstconsgendptob-17_7_1_4_7_0_0.html)\n\n**Referentes opositores visibles:**\n- **Daniel Alberto MartÃnez, Carla Antonella Casado y MarÃa Laura Cecconato** â€” concejales electos del frente Cambia Mendoza + LLA (mandato hasta 2030) [eleditormendoza.com](https://eleditormendoza.com.ar/politica/asumieron-los-nuevos-concejales-malargue-mandato-2030-n5389665)\n- **Silvina Camiolo** â€” concejal del Frente Verde (Reconstruyendo MalargÃ¼e), opositora activa y denunciante de irregularidades del intendente [eleditormendoza.com](https://eleditormendoza.com.ar/politica/incompatibilidad-celso-jaque-fue-acusado-contratar-su-yerno-el-municipio-n5389231)\n\n**Â¿La oposiciÃ³n estÃ¡ alineada con el gobierno provincial?** SÃ â€” Cambia Mendoza responde directamente a Cornejo [resultados.mendoza.gov](https://resultados.mendoza.gov.ar/eleccion251026publico/w+hstconsgendptob-17_7_1_4_7_0_0.html)\n\n**Â¿Tiene presencia La Libertad Avanza?** SÃ, y muy fuerte â€” ganÃ³ 3 bancas en 2025 en alianza con Cambia Mendoza, siendo la primera fuerza en el departamento con el 42% de los votos [resultados.mendoza.gov](https://resultados.mendoza.gov.ar/eleccion251026publico/w+hstconsgendptob-17_7_1_4_7_0_0.html)\n\n***\n\n## 3. RELACIONES EXTERNAS\n\n**RelaciÃ³n Jaqueâ€“Cornejo (gobernador): CONFLICTO ABIERTO**\nLa tensiÃ³n central gira en torno a los fondos de Portezuelo del Viento. Cornejo usÃ³ los 1.023 millones de dÃ³lares para obras en otros puntos de la provincia, excluyendo a MalargÃ¼e. Jaque reaccionÃ³ con dureza pÃºblica: \"estamos viendo una mesa servida que el plato comen otros\". El Concejo Deliberante de MalargÃ¼e llegÃ³ a aprobar una resoluciÃ³n pidiendo al Ejecutivo Municipal que inicie acciones legales contra la provincia. [mendozatoday.com](https://mendozatoday.com.ar/2025/04/14/malargue-impulsa-una-demanda-contra-la-provincia-por-portezuelo-del-viento/)\n\n**RelaciÃ³n Jaqueâ€“Milei (presidente): OPOSICIÃ“N**\nJaque criticÃ³ abiertamente al gobierno nacional por el abandono de la Ruta Nacional 40, troncal para todo el sur mendocino, y calificÃ³ el contexto como de \"abandono\" a los municipios. [eleditormendoza.com](https://eleditormendoza.com.ar/politica/celso-jaque-dio-un-discurso-malargue-y-pidio-eliminar-las-elecciones-medio-termino-n5386936)\n\n**Diputados o senadores aliados al intendente:** SIN DATOS precisos. Se sabe que el exintendente y exgobernador Emir FÃ©lix (PJ) visitÃ³ a Jaque en su despacho y reconociÃ³ pÃºblicamente su gestiÃ³n. [malargueadiario](https://www.malargueadiario.com/emir-felix-cuestiono-la-gestion-de-cornejo-y-la-distribucion-de-los-fondos-de-portezuelo-del-viento-en-su-visita-a-malargue/)\n\n***\n\n## 4. CONFLICTOS POLÃTICOS ACTIVOS\n\n### Con el gobierno provincial\n**Portezuelo del Viento â€” distribuciÃ³n de fondos**\nDesde 2024 activo. Cornejo firmÃ³ una adenda con el gobierno nacional para redirigir los fondos (1.023 M USD) de Portezuelo del Viento a otras obras de la provincia, sin incluir a MalargÃ¼e, donde estaba prevista la represa. Jaque reaccionÃ³ con furia pÃºblica. El HCD aprobÃ³ resoluciÃ³n para demandar a la provincia. Estado actual: conflicto vigente y no resuelto. [memo.com](https://www.memo.com.ar/opinion/marinaro-malargue-ley-glaciares-capitulacion/)\n\n### Con el gobierno nacional\n**Abandono de la Ruta Nacional 40**\nJaque denunciÃ³ pÃºblicamente en su discurso de apertura de sesiones 2026 que Milei abandona a los municipios del sur y especialmente la RN40, vital para la conectividad de MalargÃ¼e. Estado: conflicto activo. [eleditormendoza.com](https://eleditormendoza.com.ar/politica/celso-jaque-dio-un-discurso-malargue-y-pidio-eliminar-las-elecciones-medio-termino-n5386936)\n\n### Conflictos gremiales / sindicales locales\n**ATE vs. Municipio â€” salarios congelados**\nDesde mediados de 2025, los trabajadores municipales de MalargÃ¼e nucleados en ATE llevan adelante paros y jornadas de lucha por salarios que no se han actualizado desde abril de 2025. En mayo de 2026, ATE responsabilizÃ³ directamente al intendente Jaque por la situaciÃ³n de vulnerabilidad de los agentes municipales. Estado: conflicto activo, sin resoluciÃ³n. [ate.org](https://ate.org.ar/260106-malargue-mendoza/)\n\n### Conflictos internos del partido gobernante\n**EscÃ¡ndalo en UOCRA MalargÃ¼e**\nEn noviembre de 2025 hubo un motÃn en la sede de UOCRA MalargÃ¼e tras problemas con resultados electorales internos. Estado: sin datos de resoluciÃ³n definitiva. [youtube](https://www.youtube.com/watch?v=91SpOFSXkeA)\n\n***\n\n## 5. ECONOMÃA Y TEMAS SENSIBLES\n\n**Principal actividad econÃ³mica:** MinerÃa, hidrocarburos (petrÃ³leo y gas) y turismo (Las LeÃ±as, Caverna de las Brujas, Planetario) [revistas.uns.edu](https://revistas.uns.edu.ar/rug/article/view/5234)\n\n**Principales empleadores:**\n- Sector pÃºblico municipal y provincial\n- Empresas petroleras (8 operadores activos en la zona) [losandes.com](https://www.losandes.com.ar/politica/lanzan-un-plan-obras-viales-malargue-que-potenciaran-la-mineria-el-petroleo-y-la-produccion-n5939993)\n- 17 empresas mineras con exploraciones aprobadas [losandes.com](https://www.losandes.com.ar/politica/lanzan-un-plan-obras-viales-malargue-que-potenciaran-la-mineria-el-petroleo-y-la-produccion-n5939993)\n- Turismo: Valle de Las LeÃ±as (temporada invernal, gran empleador estacional) [malalweb.com](https://malalweb.com.ar/renovacion-legislativa-en-malargue-el-hcd-tomo-juramento-a-los-nuevos-concejales-electos/)\n- Kobrea Exploration (empresa canadiense con proyecto de cobre de 73.334 has) [investinmendoza](https://investinmendoza.com/mendoza-en-crecimiento-empresa-canadiense-adquiere-proyectos-de-cobre-en-malargue-impulsando-el-desarrollo-minero-en-la-provincia/)\n\n**Obras de infraestructura en curso o prometidas:**\n- Plan vial de 460 km anunciado por Cornejo en feb. 2025 para potenciar minerÃa, petrÃ³leo, turismo y ganaderÃa [losandes.com](https://www.losandes.com.ar/politica/lanzan-un-plan-obras-viales-malargue-que-potenciaran-la-mineria-el-petroleo-y-la-produccion-n5939993)\n- Red de gas en Barrio 60Â° Aniversario (en ejecuciÃ³n, plazo 210 dÃas) [losandes.com](https://www.losandes.com.ar/politica/celso-jaque-se-decidio-y-ya-son-dos-los-intendentes-del-pj-que-unifican-las-elecciones-quienes-faltan-n5955541)\n- Nueva seÃ±alizaciÃ³n del paraje La Junta [losandes.com](https://www.losandes.com.ar/politica/celso-jaque-se-decidio-y-ya-son-dos-los-intendentes-del-pj-que-unifican-las-elecciones-quienes-faltan-n5955541)\n- Oficina permanente de Impulsa Mendoza abierta en MalargÃ¼e (mayo 2026) [instagram](https://www.instagram.com/p/DYDP5TnDKMK/)\n\n**Temas que generan mÃ¡s reacciÃ³n en la comunidad:**\n- Fondos de Portezuelo del Viento y exclusiÃ³n de MalargÃ¼e\n- Salarios municipales congelados (conflicto ATE)\n- MinerÃa sustentable vs. impacto ambiental\n- Conectividad vial (RN40, Paso Pehuenche)\n- Seguridad y casos policiales resonantes\n\n***\n\n## 6. HISTORIA POLÃTICA RECIENTE\n\n**Elecciones municipales 2023:**\nCelso Jaque (PJ / Frente ElegÃ) ganÃ³ con aproximadamente el **46%** de los votos contra el 27,66% del entonces intendente oficialista (UCR/Cambia Mendoza). Victoria contundente. [memo.com](https://www.memo.com.ar/poder/jaque-gano-malargue-elecciones-2023/)\n\n**Elecciones legislativas 2025 (concejales):**\nLa Libertad Avanza + Cambia Mendoza: **42,01%** (5.480 votos) â€” primera fuerza\nFuerza Justicialista: **27,93%** (3.643 votos)\nTercer lugar: 14,96% (1.952 votos) [resultados.mendoza.gov](https://resultados.mendoza.gov.ar/eleccion251026publico/w+hstconsgendptob-17_7_1_4_7_0_0.html)\nâ†’ El PJ perdiÃ³ terreno legislativo, quedando en minorÃa en el HCD.\n\n**Â¿BastiÃ³n o disputado?** HistÃ³ricamente peronista, pero actualmente disputado. El avance de LLA+Cambia Mendoza en 2025 muestra que el departamento estÃ¡ polarizÃ¡ndose. [pehuenchedigital.com](https://www.pehuenchedigital.com.ar/articulo/16622/resultados-municipio-por-municipio--as---quedaron-los-hcd-tras-las-elecciones-en-mendoza)\n\n**EscÃ¡ndalos recientes:**\n- **Nepotismo (abril 2026):** La concejal Silvina Camiolo denunciÃ³ ante el HCD que Jaque contratÃ³ a su yerno en el municipio. Se solicitÃ³ intervenciÃ³n de la Oficina de Ã‰tica PÃºblica. [diariondi](https://diariondi.com/denuncian-presunto-nepotismo-en-malargue-piden-investigar-la-designacion-del-yerno-de-celso-jaque/)\n- **Denuncia contra funcionaria (julio 2025):** Camiolo denunciÃ³ a una funcionaria del intendente Jaque por exigir transferencias de dinero. [instagram](https://www.instagram.com/p/DLsMBL3NqHc/)\n\n***\n\n## 7. FIGURAS INFLUYENTES\n\n**Dirigentes sindicales con poder local:**\n- Referentes de ATE MalargÃ¼e â€” gran visibilidad por el conflicto salarial municipal (nombres especÃficos: SIN DATOS) [eleditormendoza.com](https://eleditormendoza.com.ar/sociedad/sin-aumentos-hace-mas-un-ano-ate-vuelve-al-plan-lucha-malargue-n5390071)\n- UOCRA MalargÃ¼e â€” presencia en el sector de la construcciÃ³n y obras pÃºblicas [youtube](https://www.youtube.com/watch?v=91SpOFSXkeA)\n\n**Empresarios / sectores con influencia polÃtica:**\n- CÃ¡mara de Comercio y Afines de MalargÃ¼e â€” recibida por Luis Petri (Cambia Mendoza) en mayo 2026 [sitioandino.com](https://www.sitioandino.com.ar/politica/luis-petri-se-reunio-empresarios-malargue-empleo-inversiones-y-mineria-los-ejes-del-encuentro-n5722065)\n- Kobrea Exploration (minerÃa de cobre) [investinmendoza](https://investinmendoza.com/mendoza-en-crecimiento-empresa-canadiense-adquiere-proyectos-de-cobre-en-malargue-impulsando-el-desarrollo-minero-en-la-provincia/)\n- Operadores petroleros (8 empresas activas) [losandes.com](https://www.losandes.com.ar/politica/lanzan-un-plan-obras-viales-malargue-que-potenciaran-la-mineria-el-petroleo-y-la-produccion-n5939993)\n- Valle de Las LeÃ±as (turismo de montaÃ±a, empleador estacional clave) [malalweb.com](https://malalweb.com.ar/renovacion-legislativa-en-malargue-el-hcd-tomo-juramento-a-los-nuevos-concejales-electos/)\n\n**Periodistas / medios con postura polÃtica definida:**\n- **MalargÃ¼e a Diario** â€” tono crÃtico hacia el gobierno provincial (Cornejo), cercano a la narrativa de Jaque [mendovoz](https://www.mendovoz.com/actualidad/provinciales/2023/9/24/el-peronista-celso-jaque-vuelve-la-intendencia-de-malarge-133315.html)\n- **Malalweb** â€” cobertura mÃ¡s neutral y variada [facebook](https://www.facebook.com/MunicipalidadMgue/posts/-el-intendente-celso-jaque-recibi%C3%B3-en-su-despacho-a-emir-f%C3%A9lix-y-alejandra-barro/1234930985343227/)\n- **Horacio Marinaro** (exconcejal, columnista) â€” crÃtico tanto del PJ como de Cornejo en el tema Portezuelo [memo.com](https://www.memo.com.ar/opinion/marinaro-malargue-ley-glaciares-capitulacion/)\n\n**Aliados clave del intendente:**\n- **Emir FÃ©lix** (exintendente, expresidente del PJ Mendoza) â€” visita y reconociÃ³ pÃºblicamente la gestiÃ³n de Jaque [malargueadiario](https://www.malargueadiario.com/emir-felix-cuestiono-la-gestion-de-cornejo-y-la-distribucion-de-los-fondos-de-portezuelo-del-viento-en-su-visita-a-malargue/)\n- Bloque PJ en el HCD: Acosta, Mansilla, GuzmÃ¡n, Cabrera, GonzÃ¡lez [hcd.malargue.gov](https://hcd.malargue.gov.ar)\n\n**Opositores visibles:**\n- **Silvina Camiolo** (Reconstruyendo MalargÃ¼e / Partido Verde) â€” concejal mÃ¡s activa en denuncias [eleditormendoza.com](https://eleditormendoza.com.ar/politica/incompatibilidad-celso-jaque-fue-acusado-contratar-su-yerno-el-municipio-n5389231)\n- **Daniel MartÃnez, Carla Casado, MarÃa Laura Cecconato** (LLA + Cambia Mendoza) â€” bloque opositor mayoritario desde abril 2026 [eleditormendoza.com](https://eleditormendoza.com.ar/politica/asumieron-los-nuevos-concejales-malargue-mandato-2030-n5389665)\n\n***\n\n## 8. PRÃ“XIMOS EVENTOS POLÃTICOS\n\n**Elecciones municipales prÃ³ximas:**\nJaque anunciÃ³ que unificarÃ¡ las elecciones municipales para el **26 de octubre de 2025** (legislativas ya realizadas). La prÃ³xima contienda por la intendencia serÃa en 2027 (sin confirmaciÃ³n oficial de fecha aÃºn). [losandes.com](https://www.losandes.com.ar/politica/celso-jaque-se-decidio-y-ya-son-dos-los-intendentes-del-pj-que-unifican-las-elecciones-quienes-faltan-n5955541)\n\n**Obras e inauguraciones planificadas:**\n- FinalizaciÃ³n red de gas en BÂ° 60Â° Aniversario (en curso) [losandes.com](https://www.losandes.com.ar/politica/celso-jaque-se-decidio-y-ya-son-dos-los-intendentes-del-pj-que-unifican-las-elecciones-quienes-faltan-n5955541)\n- Continuidad del plan vial de 460 km (minerÃa y turismo) [losandes.com](https://www.losandes.com.ar/politica/lanzan-un-plan-obras-viales-malargue-que-potenciaran-la-mineria-el-petroleo-y-la-produccion-n5939993)\n- Festival Pasturas 2026 â€” 18 al 23 de mayo en MalargÃ¼e [losandes.com](https://www.losandes.com.ar/politica/celso-jaque-se-decidio-y-ya-son-dos-los-intendentes-del-pj-que-unifican-las-elecciones-quienes-faltan-n5955541)\n- Parque CretÃ¡cico Huellas de Dinosaurios â€” actividades por aniversario (mayo 2026) [losandes.com](https://www.losandes.com.ar/politica/celso-jaque-se-decidio-y-ya-son-dos-los-intendentes-del-pj-que-unifican-las-elecciones-quienes-faltan-n5955541)\n\n**Festividades y eventos locales relevantes:**\n- **Festival Pasturas 2026 + Mendoza Film Lab** â€” 18 al 23 de mayo en MalargÃ¼e [losandes.com](https://www.losandes.com.ar/politica/celso-jaque-se-decidio-y-ya-son-dos-los-intendentes-del-pj-que-unifican-las-elecciones-quienes-faltan-n5955541)\n- **Fiesta de la Papa â€” XXVIII ediciÃ³n** â€” 16 y 17 de mayo en La Junta [losandes.com](https://www.losandes.com.ar/politica/celso-jaque-se-decidio-y-ya-son-dos-los-intendentes-del-pj-que-unifican-las-elecciones-quienes-faltan-n5955541)\n- **Fiesta Provincial Vuelta del Veranador** â€” ya celebrada el 2 de mayo en Bardas Blancas [mendovoz](https://www.mendovoz.com/actualidad/provinciales/2023/9/24/el-peronista-celso-jaque-vuelve-la-intendencia-de-malarge-133315.html)\n- **PostulaciÃ³n ONU Turismo** de Bardas Blancas y Las Loicas â€” resultado esperado el 29 de mayo [facebook](https://www.facebook.com/MunicipalidadMgue/posts/-el-intendente-celso-jaque-recibi%C3%B3-en-su-despacho-a-emir-f%C3%A9lix-y-alejandra-barro/1234930985343227/)\n\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n\n═══════════════════════════════════════\nTU TAREA:\n═══════════════════════════════════════\nINPUT DATA:\n{{ $json.news_summary }}\n\nGenerar un artículo de prensa y un título atractivo y persuasivo.\nAsegurate de aplicar ESTRICTAMENTE todas las REGLAS_EDITORIALES_ABSOLUTAS, especialmente NUNCA_PUBLICAR y SIEMPRE_AMPLIFICAR.\n\nFORMATO DE RESPUESTA OBLIGATORIO — JSON ESTRICTO:\n{\n  \"titulo\": \"Título SEO en español, 55-65 caracteres, incluir nombre del municipio\",\n  \"slug\": \"slug-sin-tildes-sin-espacios-maximo-40-chars\",\n  \"contenido_html\": \"<h2>Subtítulo</h2><p>Artículo completo en HTML limpio, mínimo 300 palabras, en español argentino</p>\",\n  \"resumen_aprobacion\": \"Línea 1: qué pasó. Línea 2: por qué importa políticamente. Máximo 155 caracteres total.\",\n  \"categoria\": \"politica|turismo|infraestructura|seguridad|cultura|economia\"\n}\nCRITICAL: Respond with STRICT JSON ONLY. No markdown. No text outside JSON."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "maxOutputTokens": 8192,
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        688
+      ],
+      "id": "50f79e6b-ea04-4a7e-b348-809786002665",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "eQ29bdh7lR0hXybK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=Malarg%C3%BCe&hl=es-419&gl=AR&ceid=AR:es-419",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        896
+      ],
+      "id": "e7aabcfe-743b-4ab9-bf4c-1ed222307cbf",
+      "name": "RSS Google News Nacional"
+    },
+    {
+      "parameters": {
+        "url": "https://malalweb.com.ar/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        496
+      ],
+      "id": "421a12f2-5427-416d-9e0c-70aac542cb80",
+      "name": "RSS Malalweb"
+    },
+    {
+      "parameters": {
+        "url": "https://www.malargueadiario.com/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        288
+      ],
+      "id": "c048edaa-7a0e-4932-9050-40472f490dfa",
+      "name": "RSS MalargÃ¼e a Diario"
+    },
+    {
+      "parameters": {
+        "url": "https://www.malargue.gov.ar/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        688
+      ],
+      "id": "5d591397-40e6-4820-aa0e-d8320a4af905",
+      "name": "RSS Municipalidad"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1520,
+        96
+      ],
+      "id": "2cdd31d4-5552-4d5d-b807-4f786872b68f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "APROBADO",
+            "slug": "={{ $('Recuperar Texto').item.json.slug if $('Recuperar Texto') else $json.slug }}"
+          },
+          "matchingColumns": [
+            "slug"
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -608,
+        1088
+      ],
+      "id": "b789a062-7cf6-4721-9866-11958ddbc316",
+      "name": "Set APROBADO",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wlHYpO5Knj4a6xCZ",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "DESCARTADO",
+            "slug": "={{ $('Recuperar Texto').item.json.slug if $('Recuperar Texto') else $json.slug }}"
+          },
+          "matchingColumns": [
+            "slug"
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -608,
+        1296
+      ],
+      "id": "2eba0135-87e6-411a-8c3f-eb91cd7eb174",
+      "name": "Set DESCARTADO",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wlHYpO5Knj4a6xCZ",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "ERROR",
+            "slug": "={{ $('Recuperar Texto').item.json.slug if $('Recuperar Texto') else $json.slug }}"
+          },
+          "matchingColumns": [
+            "slug"
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        288,
+        192
+      ],
+      "id": "825c71e3-332c-425b-819e-e425d8a425e2",
+      "name": "Set ERROR",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wlHYpO5Knj4a6xCZ",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "PROCESANDO",
+            "slug": "={{ $('Recuperar Texto').item.json.slug if $('Recuperar Texto') else $json.slug }}"
+          },
+          "matchingColumns": [
+            "slug"
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -608,
+        96
+      ],
+      "id": "52dc3aa1-2dab-418c-8336-3120e6084686",
+      "name": "Set PROCESANDO",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wlHYpO5Knj4a6xCZ",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1520,
+        1184
+      ],
+      "id": "8c0b90b7-b5ba-4d43-8e4f-0f6d111f6c22",
+      "name": "Telegram Trigger",
+      "webhookId": "a7c45415-705b-4bd7-96d6-af7eb85e3571",
+      "credentials": {
+        "telegramApi": {
+          "id": "Gf3gnn25sb0Xe4fq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        -1216,
+        592
+      ],
+      "id": "ce924077-884d-4b7f-a6d0-f467c28bcd83",
+      "name": "Unir Fuentes"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "16s5SbRhH92xTNF4S-D5pl4wcOPoaOKumv8741y1ln-U",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "PUBLICADO",
+            "slug": "={{ $('Recuperar Texto').item.json.slug if $('Recuperar Texto') else $json.slug }}"
+          },
+          "matchingColumns": [
+            "slug"
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        288,
+        -16
+      ],
+      "id": "9887b5ea-63fd-465c-8bd6-25107654f282",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wlHYpO5Knj4a6xCZ",
+          "name": "Google Sheets account 6"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cada 20 Min": {
+      "main": [
+        [
+          {
+            "node": "RSS MalargÃ¼e a Diario",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Malalweb",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Municipalidad",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Google News Nacional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpiar JSON": {
+      "main": [
+        [
+          {
+            "node": "Guardar Borrador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Borrador": {
+      "main": [
+        [
+          {
+            "node": "Preguntar Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recuperar Texto": {
+      "main": [
+        [
+          {
+            "node": "Limit to 1 row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publicar en Blogger": {
+      "main": [
+        [
+          {
+            "node": "GitHub Exito?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agrupar Data": {
+      "main": [
+        [
+          {
+            "node": "Leer Slugs Publicados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Limpiar JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Recuperar Texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Aviso Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit to 1 row": {
+      "main": [
+        [
+          {
+            "node": "Set PROCESANDO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set PROCESANDO": {
+      "main": [
+        [
+          {
+            "node": "Publicar en Blogger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Action": {
+      "main": [
+        [
+          {
+            "node": "Check Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Action": {
+      "main": [
+        [
+          {
+            "node": "Set APROBADO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set DESCARTADO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set APROBADO": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set DESCARTADO": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set ERROR": {
+      "main": [
+        [
+          {
+            "node": "Alerta Error GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS MalargÃ¼e a Diario": {
+      "main": [
+        [
+          {
+            "node": "Unir Fuentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Malalweb": {
+      "main": [
+        [
+          {
+            "node": "Unir Fuentes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Unir Fuentes": {
+      "main": [
+        [
+          {
+            "node": "Agrupar Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Slugs Publicados": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Duplicados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Duplicados": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub Exito?": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set ERROR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8167cb89-98b0-4ce7-945f-78007847bd73",
+  "meta": {
+    "instanceId": "94722b46e4638861038aba8d33aa2cba7e09c849586296d97a76f615279bcfde"
+  },
+  "id": "ZLSp1ltPjuCN9znC",
+  "tags": []
+}

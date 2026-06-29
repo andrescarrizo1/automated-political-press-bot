@@ -1,0 +1,7 @@
+# INSTAGRAM - MALARGÜE
+
+https://www.instagram.com/malargueadiario/ | Malargüe a Diario
+https://www.instagram.com/seryhacerdemalargue/ | Ser y Hacer de Malargüe
+https://www.instagram.com/lv19radiomalargue/ | LV19 Radio Malargüe
+https://www.instagram.com/fmeolica/ | FM Eólica
+# NOTA: requieren Apify para scraping

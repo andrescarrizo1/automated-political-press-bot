@@ -1,0 +1,27 @@
+# Entornos Virtuales
+.venv/
+venv/
+env/
+
+# Caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Variables de entorno y credenciales (¡CRÍTICO!)
+.env
+credentials_blogger.json
+token_blogger.json
+
+# Bases de datos locales
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Entorno de desarrollo
+.vscode/
+.idea/
+.claude/

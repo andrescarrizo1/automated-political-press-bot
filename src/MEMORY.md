@@ -1,0 +1,1 @@
+- [Arquitectura Agentica Liberty Press](memory/arquitectura-agentica.md) — Migración de sistema de contenidos de n8n a arquitectura agentica.

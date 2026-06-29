@@ -1,0 +1,11 @@
+# FACEBOOK - MALARGÜE
+
+[MEDIOS]
+https://www.facebook.com/malalwebdiariodigital/ | Malalweb
+https://www.facebook.com/SyHMalargue/ | Ser y Hacer de Malargüe (página)
+https://www.facebook.com/radiomalargue/ | LV19 Radio Malargüe
+https://www.facebook.com/eolica.puraenergia | FM Eólica
+
+[GRUPOS_VECINALES]
+https://www.facebook.com/groups/151981399924/ | Ser y Hacer de Malargüe (grupo)
+# NOTA: grupos requieren Apify para scraping

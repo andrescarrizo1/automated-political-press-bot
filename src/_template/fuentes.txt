@@ -1,0 +1,20 @@
+# FUENTES DE CONTENIDO - TEMPLATE
+# Completar para cada cliente
+
+[RSS_LOCALES]
+# URL_RSS | nombre_medio | prioridad(1-3) | sesgo(neutro|oposicion|oficialismo)
+
+[RSS_PROVINCIALES]
+# Agregar feeds provinciales relevantes
+
+[RSS_NACIONALES]
+# Google News filtrado por municipio - se genera automaticamente
+
+[FACEBOOK_PAGES]
+# URL | nombre | tipo(medio|partido|vecinos)
+
+[INSTAGRAM]
+# URL | nombre | tipo
+
+[KEYWORDS_MONITOREAR]
+# palabras clave para alertas de crisis

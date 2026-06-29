@@ -1,0 +1,14 @@
+{
+  "municipio": "Malargüe",
+  "provincia": "Mendoza",
+  "partido": "Partido Justicialista",
+  "rol": "OFICIALISMO",
+  "intendente": "Celso Jaque",
+  "personas_protegidas": ["Celso Jaque", "municipalidad de Malargüe"],
+  "personas_objetivo": ["Alfredo Cornejo", "Javier Milei"],
+  "temas_amplificar": ["obras municipales", "gestión Jaque", "logros PJ"],
+  "temas_vetar": ["escándalos municipio", "conflictos ATE"],
+  "tono": "institucional y firme",
+  "telegram_chat_id": "REEMPLAZAR_CON_CHAT_ID_REAL",
+  "blogger_blog_id": "REEMPLAZAR_CON_BLOG_ID_REAL"
+}
